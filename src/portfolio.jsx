@@ -708,7 +708,7 @@ const TrafficSimulation = () => {
 
   return (
     <div style={{ background: "rgba(10,10,30,0.7)", borderRadius: 16, padding: "24px", border: "1px solid rgba(245,197,24,0.15)", backdropFilter: "blur(8px)" }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16, flexWrap: "wrap", gap: 12 }}>
+     <div style={{ display: "flex", alignItems: "flex-start", marginBottom: 16, flexWrap: "wrap", gap: 12, width: "100%" }}>
         <div>
           <h3 style={{ color: "#f5c518", fontFamily: "'Oswald', sans-serif", fontSize: 20, margin: 0, textTransform: "uppercase", letterSpacing: 2 }}>
             Traffic Signal Simulation
