@@ -30,11 +30,6 @@ const Icons = {
       <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6M15 3h6v6M10 14L21 3" />
     </svg>
   ),
-  ChevronDown: () => (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-5 h-5">
-      <path d="M6 9l6 6 6-6" />
-    </svg>
-  ),
   Menu: () => (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="w-6 h-6">
       <path d="M4 6h16M4 12h16M4 18h16" />
@@ -708,16 +703,16 @@ const TrafficSimulation = () => {
 
   return (
     <div style={{ background: "rgba(10,10,30,0.7)", borderRadius: 16, padding: "24px", border: "1px solid rgba(245,197,24,0.15)", backdropFilter: "blur(8px)" }}>
-     <div style={{ display: "flex", alignItems: "flex-start", marginBottom: 16, flexWrap: "wrap", gap: 12, width: "100%" }}>
-        <div>
-          <h3 style={{ color: "#f5c518", fontFamily: "'Oswald', sans-serif", fontSize: 20, margin: 0, textTransform: "uppercase", letterSpacing: 2 }}>
+      <div style={{ display: "flex", alignItems: "flex-start", marginBottom: 16, flexWrap: "wrap", gap: 12, width: "100%" }}>
+        <div style={{ flex: "1 1 220px", minWidth: 0, textAlign: "left" }}>
+          <h3 style={{ color: "#f5c518", fontFamily: "'Oswald', sans-serif", fontSize: 20, margin: 0, textTransform: "uppercase", letterSpacing: 2, textAlign: "left" }}>
             Traffic Signal Simulation
           </h3>
-          <p style={{ color: "rgba(255,255,255,0.35)", fontSize: 11, margin: "4px 0 0", fontFamily: "'JetBrains Mono', monospace" }}>
+          <p style={{ color: "rgba(255,255,255,0.35)", fontSize: 11, margin: "4px 0 0", fontFamily: "'JetBrains Mono', monospace", textAlign: "left", lineHeight: 1.45 }}>
             Stop-line compliance · Car-following model · Signal phasing with all-red clearance
           </p>
         </div>
-        <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+        <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginLeft: "auto" }}>
           <select value={signalMode} onChange={(e) => setSignalMode(e.target.value)} style={controlStyle}>
             <option value="fixed">Fixed Timing</option>
             <option value="adaptive">Adaptive Timing</option>
@@ -902,7 +897,11 @@ const SkillPill = ({ name, glow = false }) => (
 export default function Portfolio() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [isWide, setIsWide] = useState(() => (typeof window !== "undefined" ? window.innerWidth > 900 : true));
   const [signalState, setSignalState] = useState("red");
+  const [activeSection, setActiveSection] = useState("home");
+
+  const SIDEBAR_W = 260;
 
   const typedText = useTypedText([
     "MS in Transportation Engineering",
@@ -914,6 +913,41 @@ export default function Portfolio() {
     const handleScroll = () => setScrolled(window.scrollY > 60);
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  // Sidebar: desktop = fixed left; mobile = overlay drawer
+  useEffect(() => {
+    const onResize = () => {
+      const wide = window.innerWidth > 900;
+      setIsWide(wide);
+      if (wide) setMenuOpen(false);
+    };
+    onResize();
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
+
+  // Scroll spy: highlight nav link for the section in view
+  useEffect(() => {
+    const ids = ["home", "about", "experience", "projects", "simulation", "skills", "contact"];
+    const updateActive = () => {
+      const line = window.scrollY + Math.min(160, window.innerHeight * 0.28);
+      let current = "home";
+      for (const id of ids) {
+        const el = document.getElementById(id);
+        if (!el) continue;
+        const top = el.getBoundingClientRect().top + window.scrollY;
+        if (line >= top) current = id;
+      }
+      setActiveSection((prev) => (prev === current ? prev : current));
+    };
+    updateActive();
+    window.addEventListener("scroll", updateActive, { passive: true });
+    window.addEventListener("resize", updateActive);
+    return () => {
+      window.removeEventListener("scroll", updateActive);
+      window.removeEventListener("resize", updateActive);
+    };
   }, []);
 
   // Traffic signal cycle
@@ -933,21 +967,21 @@ export default function Portfolio() {
     {
       role: "VP, ITE Student Chapter",
       org: "Texas A&M University",
-      date: "2024 — Present",
+      date: "2026 — Present",
       tags: ["Leadership", "Transportation", "Networking"],
       desc: "Leading chapter initiatives, organizing industry speaker events, and connecting students with transportation engineering professionals across Texas.",
     },
     {
       role: "Systems Engineer",
       org: "Infosys Ltd.",
-      date: "2021 — 2023",
+      date: "2022 — 2024",
       tags: ["Java", "Angular", "Spring Boot", "Agile", "Role-Based Access", "Real-Time Data Dashboards"],
       desc: "Delivered enterprise web applications in Agile teams. Built responsive Angular frontends and RESTful Java/Spring Boot backends serving 10K+ users. Led sprint planning and code review processes.",
     },
     {
       role: "Design Engineering Intern",
       org: "FEDO (Fact Engineering & Design Organisation)",
-      date: "Summer 2020",
+      date: "Summer 2025",
       tags: ["Structural Design", "AutoCAD", "STAAD Pro", "Design Codes", "Load Calculations", "Construction Documentation", "Tender Documents"],
       desc: "Assisted in structural analysis and design of industrial facilities. Gained hands-on experience with design codes, load calculations, and construction documentation.",
     },
@@ -1000,14 +1034,6 @@ export default function Portfolio() {
 
   const skillGroups = [
     {
-      category: "Frontend & Web",
-      skills: ["React", "Angular", "JavaScript", "TypeScript", "HTML/CSS", "Tailwind CSS", "Vite"],
-    },
-    {
-      category: "Backend & Systems",
-      skills: ["Java", "Spring Boot", "REST APIs", "Node.js", "PostgreSQL", "Git"],
-    },
-    {
       category: "Transportation Engineering",
       skills: ["Traffic Planning", "Crash Data Analysis", "Highway Capacity", "Roadway Geometry", "Vision Zero", "TxDOT CRIS"],
     },
@@ -1019,6 +1045,15 @@ export default function Portfolio() {
       category: "Softwares",
       skills: ["AutoCAD", "Civil 3D", "STAAD Pro", "Microsoft Office Suite", "Excel VBA"],
     },
+    {
+      category: "Frontend & Web",
+      skills: ["React", "Angular", "JavaScript", "TypeScript", "HTML/CSS", "Tailwind CSS", "Vite"],
+    },
+    {
+      category: "Backend & Systems",
+      skills: ["Java", "Spring Boot", "REST APIs", "Node.js", "PostgreSQL", "Git"],
+    },
+  
   ];
 
   return (
@@ -1052,98 +1087,171 @@ export default function Portfolio() {
           0%, 100% { opacity: 1; }
           50% { opacity: 0; }
         }
-        @keyframes float {
-          0%, 100% { transform: translateY(0); }
-          50% { transform: translateY(-10px); }
-        }
         @keyframes slideInLeft {
           from { opacity: 0; transform: translateX(-30px); }
           to { opacity: 1; transform: translateX(0); }
+        }
+        #root {
+          width: 100% !important;
+          max-width: none !important;
+          margin: 0 !important;
+          border: none !important;
+          text-align: initial !important;
         }
       `}</style>
 
       <RoadStripes />
 
-      {/* ── NAVBAR ── */}
+      {/* Mobile: dim background when drawer open */}
+      {!isWide && menuOpen && (
+        <div
+          role="presentation"
+          aria-hidden
+          onClick={() => setMenuOpen(false)}
+          style={{
+            position: "fixed",
+            inset: 0,
+            background: "rgba(0,0,0,0.5)",
+            zIndex: 999,
+            backdropFilter: "blur(3px)",
+          }}
+        />
+      )}
+
+      {/* Mobile menu toggle */}
+      {!isWide && (
+        <button
+          type="button"
+          aria-label={menuOpen ? "Close navigation" : "Open navigation"}
+          onClick={() => setMenuOpen(!menuOpen)}
+          style={{
+            position: "fixed",
+            top: 16,
+            right: 16,
+            zIndex: 1002,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            width: 44,
+            height: 44,
+            background: "rgba(10,10,26,0.92)",
+            border: "1px solid rgba(245,197,24,0.25)",
+            borderRadius: 10,
+            color: "#f5c518",
+            cursor: "pointer",
+            boxShadow: "0 8px 24px rgba(0,0,0,0.35)",
+          }}
+        >
+          {menuOpen ? <Icons.X /> : <Icons.Menu />}
+        </button>
+      )}
+
+      {/* ── FIXED LEFT SIDEBAR (stays visible while scrolling) ── */}
       <nav
+        aria-label="Primary"
         style={{
           position: "fixed",
           top: 0,
-          left: 0,
-          right: 0,
+          left: isWide ? 0 : menuOpen ? 0 : -(SIDEBAR_W + 24),
+          width: SIDEBAR_W,
+          height: "100vh",
+          maxHeight: "100dvh",
           zIndex: 1000,
-          padding: scrolled ? "10px 0" : "18px 0",
-          background: scrolled ? "rgba(10,10,26,0.95)" : "transparent",
-          backdropFilter: scrolled ? "blur(20px)" : "none",
-          borderBottom: scrolled ? "1px solid rgba(245,197,24,0.1)" : "none",
-          transition: "all 0.4s ease",
+          display: "flex",
+          flexDirection: "column",
+          padding: "28px 16px 24px",
+          gap: 6,
+          background: scrolled ? "rgba(10,10,26,0.98)" : "rgba(10,10,26,0.94)",
+          backdropFilter: "blur(20px)",
+          WebkitBackdropFilter: "blur(20px)",
+          borderRight: "1px solid rgba(245,197,24,0.12)",
+          boxShadow: scrolled ? "4px 0 28px rgba(0,0,0,0.4)" : "2px 0 20px rgba(0,0,0,0.25)",
+          transition: "left 0.35s cubic-bezier(0.16,1,0.3,1), background 0.3s ease, box-shadow 0.3s ease",
+          overflowY: "auto",
         }}
       >
-        <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 24px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 12, cursor: "pointer" }} onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>
-            <TrafficSignal active={signalState} size={28} />
-            <span style={{ fontFamily: "'Oswald', sans-serif", fontSize: 22, fontWeight: 600, color: "#f5c518", letterSpacing: 2, textTransform: "uppercase" }}>
-              Araavind
-            </span>
-          </div>
-
-          <div style={{ display: "flex", gap: 28, alignItems: "center" }} className="nav-desktop">
-            {navLinks.map((link) => (
-              <a
-                key={link}
-                href={`#${link.toLowerCase()}`}
-                style={{
-                  color: "rgba(255,255,255,0.6)",
-                  textDecoration: "none",
-                  fontFamily: "'JetBrains Mono', monospace",
-                  fontSize: 12,
-                  letterSpacing: 1.5,
-                  textTransform: "uppercase",
-                  transition: "color 0.3s",
-                  position: "relative",
-                }}
-                onMouseEnter={(e) => (e.target.style.color = "#f5c518")}
-                onMouseLeave={(e) => (e.target.style.color = "rgba(255,255,255,0.6)")}
-              >
-                {link}
-              </a>
-            ))}
-          </div>
-
-          <button
-            onClick={() => setMenuOpen(!menuOpen)}
-            style={{ display: "none", background: "none", border: "none", color: "#f5c518", cursor: "pointer" }}
-            className="nav-mobile-btn"
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 10,
+            cursor: "pointer",
+            marginBottom: 4,
+            paddingBottom: 20,
+            borderBottom: "1px solid rgba(255,255,255,0.06)",
+          }}
+          onClick={() => {
+            window.scrollTo({ top: 0, behavior: "smooth" });
+            setMenuOpen(false);
+          }}
+        >
+          <TrafficSignal active={signalState} size={30} />
+          <span
+            style={{
+              fontFamily: "'Oswald', sans-serif",
+              fontSize: 19,
+              fontWeight: 600,
+              color: "#f5c518",
+              letterSpacing: 2,
+              textTransform: "uppercase",
+              lineHeight: 1.15,
+            }}
           >
-            {menuOpen ? <Icons.X /> : <Icons.Menu />}
-          </button>
+            Araavind
+          </span>
         </div>
 
-        {menuOpen && (
-          <div style={{ padding: "20px 24px", background: "rgba(10,10,26,0.98)", borderTop: "1px solid rgba(245,197,24,0.1)" }}>
-            {navLinks.map((link) => (
+        <div style={{ display: "flex", flexDirection: "column", gap: 2, flex: 1, paddingTop: 8 }}>
+          {navLinks.map((link) => {
+            const slug = link.toLowerCase();
+            const isActive = activeSection === slug;
+            return (
               <a
                 key={link}
-                href={`#${link.toLowerCase()}`}
+                href={`#${slug}`}
+                aria-current={isActive ? "page" : undefined}
                 onClick={() => setMenuOpen(false)}
                 style={{
-                  display: "block",
-                  padding: "12px 0",
-                  color: "rgba(255,255,255,0.7)",
+                  color: isActive ? "#f5c518" : "rgba(255,255,255,0.65)",
                   textDecoration: "none",
                   fontFamily: "'JetBrains Mono', monospace",
-                  fontSize: 14,
-                  letterSpacing: 1,
-                  borderBottom: "1px solid rgba(255,255,255,0.05)",
+                  fontSize: 13,
+                  letterSpacing: 1.35,
+                  textTransform: "uppercase",
+                  padding: "12px 12px",
+                  borderRadius: 8,
+                  borderLeft: `3px solid ${isActive ? "#f5c518" : "transparent"}`,
+                  background: isActive ? "rgba(245,197,24,0.14)" : "transparent",
+                  boxShadow: isActive ? "inset 0 0 0 1px rgba(245,197,24,0.12)" : "none",
+                  transition: "background 0.2s, color 0.2s, border-color 0.2s, box-shadow 0.2s",
+                }}
+                onMouseEnter={(e) => {
+                  if (!isActive) {
+                    e.currentTarget.style.background = "rgba(245,197,24,0.1)";
+                    e.currentTarget.style.color = "#f5c518";
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = isActive ? "rgba(245,197,24,0.14)" : "transparent";
+                  e.currentTarget.style.color = isActive ? "#f5c518" : "rgba(255,255,255,0.65)";
                 }}
               >
                 {link}
               </a>
-            ))}
-          </div>
-        )}
+            );
+          })}
+        </div>
       </nav>
 
+      <main
+        style={{
+          marginLeft: isWide ? SIDEBAR_W : 0,
+          marginRight: isWide ? SIDEBAR_W : 0,
+          minHeight: "100vh",
+          boxSizing: "border-box",
+          transition: "margin 0.35s cubic-bezier(0.16,1,0.3,1)",
+        }}
+      >
       {/* ── HERO SECTION ── */}
       <header
         id="home"
@@ -1153,7 +1261,7 @@ export default function Portfolio() {
           alignItems: "center",
           justifyContent: "center",
           position: "relative",
-          padding: "120px 24px 80px",
+          padding: "56px 24px 80px",
         }}
       >
         <div style={{ position: "absolute", top: "15%", left: "10%", width: 300, height: 300, borderRadius: "50%", background: "radial-gradient(circle, rgba(245,197,24,0.06) 0%, transparent 70%)", filter: "blur(60px)", pointerEvents: "none" }} />
@@ -1237,7 +1345,7 @@ export default function Portfolio() {
           >
             MS Transportation Engineering @ Texas A&M · Building safer roads with data & code.
             <br />
-            Where civil infrastructure meets software infrastructure.
+         
           </p>
 
           <div style={{ display: "flex", gap: 16, justifyContent: "center", marginTop: 40, flexWrap: "wrap" }}>
@@ -1281,12 +1389,6 @@ export default function Portfolio() {
               onMouseLeave={(e) => { e.target.style.background = "transparent"; e.target.style.transform = "translateY(0)"; }}
             >
               Get In Touch
-            </a>
-          </div>
-
-          <div style={{ marginTop: 60, animation: "float 2s ease-in-out infinite" }}>
-            <a href="#about" style={{ color: "rgba(255,255,255,0.2)", textDecoration: "none" }}>
-              <Icons.ChevronDown />
             </a>
           </div>
         </div>
@@ -1649,6 +1751,7 @@ export default function Portfolio() {
           © {new Date().getFullYear()} Araavind Subramoniam
         </p>
       </footer>
+      </main>
     </>
   );
 }
