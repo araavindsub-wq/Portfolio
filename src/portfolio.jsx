@@ -6,7 +6,7 @@ import profileFormal from "./assets/profile-formal.png";
 /* ─────────────────────────────────────────────
    ARAAVIND'S PORTFOLIO — "Night Highway" Edition
    A fusion of Frontend Engineering × Transportation Engineering
-   ───────────────────────────────────────────── */
+   ───────────────────────────────────────────── */ 
 
 // ── Inline SVG Icons ──
 const Icons = {
